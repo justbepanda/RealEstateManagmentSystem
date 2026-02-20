@@ -1,0 +1,70 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    image: rems-app
+    container_name: rems-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/var/www
+    networks:
+      - rems-network
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:17-alpine
+    container_name: rems-db
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_DATABASE:-rems}
+    ports:
+      - "54321:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - rems-network
+
+  redis:
+    image: redis:alpine
+    container_name: rems-redis
+    networks:
+      - rems-network
+
+  horizon:
+    image: rems-app
+    container_name: rems-horizon
+    restart: unless-stopped
+    command: php artisan horizon
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - ./:/var/www
+    networks:
+      - rems-network
+
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: rems-meilisearch
+    ports:
+      - "7700:7700"
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-masterKey}
+    networks:
+      - rems-network
+
+networks:
+  rems-network:
+    driver: bridge
+
+volumes:
+  pgdata:
