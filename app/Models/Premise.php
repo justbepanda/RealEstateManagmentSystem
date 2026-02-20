@@ -6,6 +6,8 @@ namespace App\Models;
 
 use App\Enums\PremiseStatusEnum;
 use App\Enums\PremiseTypeEnum;
+use App\Observers\PremiseObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +19,7 @@ use Orchid\Screen\AsSource;
 /**
  * Помещения
  */
+#[ObservedBy(PremiseObserver::class)]
 final class Premise extends Model
 {
     use AsSource;

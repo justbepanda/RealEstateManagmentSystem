@@ -40,5 +40,10 @@ class DatabaseSeeder extends Seeder
         $sections = Section::factory(8)->recycle($buildings)->create();
         $floors = Floor::factory(40)->recycle($sections)->recycle($buildings)->create();
         Premise::factory(160)->recycle($floors)->create();
+        Floor::query()->each(function (Floor $floor): void {
+            $floor->updateQuietly([
+                'premises_count' => $floor->premises()->count()
+            ]);
+        });
     }
 }
