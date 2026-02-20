@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\ComplexStatusEnum;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Orchid\Attachment\Attachable;
@@ -21,6 +22,7 @@ final class Complex extends Model
     use Attachable;
     use Filterable;
     use HasUlids;
+    use HasFactory;
 
     /**
      * @var array<int, string>

@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\PremiseStatusEnum;
 use App\Enums\PremiseTypeEnum;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Orchid\Attachment\Attachable;
@@ -22,6 +23,7 @@ final class Premise extends Model
     use Attachable;
     use Filterable;
     use HasUlids;
+    use HasFactory;
 
     /**
      * @var array<int, string>
