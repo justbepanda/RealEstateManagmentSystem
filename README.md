@@ -29,7 +29,7 @@ git clone https://github.com/justbepanda/RealEstateManagmentSystem.git
 make setup
 ```
 
-1.  Make setup выполнит:
+Make setup выполнит:
 
 *   Сборку контейнеров Docker
 
@@ -38,6 +38,18 @@ make setup
 *   Настройку базы данных
 
 *   Прогон миграций и сидеров
+
+
+Доступ к админ-панели: http://localhost:8000/admin/main
+
+Демо юзер:
+
+name: `Admin`
+
+email: `admin@admin.com`
+
+password: `password`
+
 
 Технологический стек
 --------------------
