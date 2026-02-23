@@ -13,20 +13,30 @@ enum PremiseStatusEnum: string
     case SOLD = 'sold';
     case NOT_FOR_SALE = 'not_for_sale';
 
-    public function label(): string
-    {
-        return match ($this) {
-            self::AVAILABLE => 'Свободно',
-            self::RESERVED => 'Забронировано',
-            self::SOLD => 'Продано',
-            self::NOT_FOR_SALE => 'Не для продажи',
-        };
-    }
-
+    /**
+     * @return array
+     */
     public static function options(): array
     {
-        return collect(self::cases())->mapWithKeys(fn($case) => [
-            $case->value => $case->label()
-        ])->toArray();
+        $options = [];
+
+        foreach (self::cases() as $case) {
+            $options[$case->value] = ucfirst($case->value);
+        }
+
+        return $options;
+    }
+
+    /**
+     * @return string
+     */
+    public function label(): string
+    {
+        return match($this) {
+            self::AVAILABLE    => 'Доступно',
+            self::RESERVED     => 'Забронировано',
+            self::SOLD         => 'Продано',
+            self::NOT_FOR_SALE => 'Не для продажи',
+        };
     }
 }

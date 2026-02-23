@@ -1,13 +1,11 @@
-FROM php:8.4-cli
+FROM php:8.4-fpm
 
 ARG UID=1000
 ARG GID=1000
 
-# Создаём системного пользователя
 RUN groupadd -g ${GID} app \
     && useradd -m -u ${UID} -g ${GID} app
 
-# Устанавливаем системные зависимости
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -22,29 +20,21 @@ RUN apt-get update && apt-get install -y \
     supervisor \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# PHP расширения (добавлено intl для Orchid и zip для Composer)
 RUN docker-php-ext-configure intl \
-    && docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd sockets intl zip
+    && docker-php-ext-install pdo_pgsql mbstring exif bcmath gd intl zip pcntl
 
-# Redis
 RUN pecl install redis && docker-php-ext-enable redis
 
-# Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# RoadRunner
-COPY --from=spiralscout/roadrunner:latest /usr/bin/rr /usr/bin/rr
 
 WORKDIR /var/www
 
-# Права на директории до копирования (оптимизация слоев)
 RUN chown -R app:app /var/www
+
+RUN echo "upload_max_filesize=100M\npost_max_size=100M" > /usr/local/etc/php/conf.d/uploads.ini
 
 USER app
 
-# Копируем файлы проекта (убедись, что .dockerignore настроен)
 COPY --chown=app:app . .
 
-EXPOSE 8000
-
-CMD ["supervisord", "-c", "/var/www/supervisord.conf"]
+EXPOSE 9000

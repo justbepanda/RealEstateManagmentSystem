@@ -8,6 +8,7 @@ use App\Models\Floor;
 use App\Models\Premise;
 use App\Models\PremiseHistory;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Помещения.
@@ -15,20 +16,21 @@ use Illuminate\Support\Facades\Auth;
  */
 final class PremiseObserver
 {
-
     /**
      * @param Premise $premise
      * @return void
      */
     public function created(Premise $premise): void
     {
-        // Изменение кол-ва помещений на этаже после добавления помещения
+        // Изменение кол-ва помещений на этаже
         if ($premise->floor_id) {
             Floor::where('id', $premise->floor_id)
                 ->increment('premises_count');
         }
-    }
 
+        // Очистка кэша
+        $this->clearPremiseCache();
+    }
 
     /**
      * @param Premise $premise
@@ -37,22 +39,28 @@ final class PremiseObserver
     public function updated(Premise $premise): void
     {
         // Создание истории смены статуса помещения
-        if ($premise->isDirty('status')) {
-            $this->logHistory($premise, 'status',
-                (string)$premise->getOriginal('status'),
-                (string)$premise->status->value
+        if ($premise->wasChanged('status')) {
+            $this->logHistory(
+                $premise,
+                'status',
+                (string) $premise->getOriginal('status'),
+                (string) $premise->status
             );
         }
 
-        // Создание истории изменения базовой цены помещения
-        if ($premise->isDirty('price_base')) {
-            $this->logHistory($premise, 'price',
-                (string)$premise->getOriginal('price_base'),
-                (string)$premise->price_base
+        // История изменения цены
+        if ($premise->wasChanged('price_base')) {
+            $this->logHistory(
+                $premise,
+                'price',
+                (string) $premise->getOriginal('price_base'),
+                (string) $premise->price_base
             );
         }
+
+        // Очистка кэша
+        $this->clearPremiseCache();
     }
-
 
     /**
      * @param Premise $premise
@@ -60,19 +68,23 @@ final class PremiseObserver
      */
     public function deleted(Premise $premise): void
     {
-        // Изменение кол-ва помещений на этаже после удаления помещения
+        // Изменение кол-ва помещений на этаже
         $premise->floor()->decrement('premises_count');
+
+        // Очистка кэша
+        $this->clearPremiseCache();
     }
 
+    /**
+     * Очищаем кэш
+     */
+    private function clearPremiseCache(): void
+    {
+        Cache::tags(['premises', 'statistics'])->flush();
+    }
 
     /**
      * Записываем историю изменений
-     *
-     * @param Premise $premise
-     * @param string $type
-     * @param string|null $old
-     * @param string $new
-     * @return void
      */
     private function logHistory(Premise $premise, string $type, ?string $old, string $new): void
     {

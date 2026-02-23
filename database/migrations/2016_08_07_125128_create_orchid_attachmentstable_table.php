@@ -31,8 +31,8 @@ return new class extends Migration
 
         Schema::create('attachmentable', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('attachmentable_id');
             $table->string('attachmentable_type');
-            $table->unsignedInteger('attachmentable_id');
             $table->unsignedInteger('attachment_id');
 
             $table->index(['attachmentable_type', 'attachmentable_id']);

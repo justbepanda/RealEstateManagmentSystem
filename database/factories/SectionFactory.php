@@ -24,7 +24,6 @@ class SectionFactory extends Factory
             'building_id'  => Building::factory(),
             'name'         => 'Секция ' . $this->faker->randomElement(['А', 'Б', 'В', 'Г']),
             'floors_count' => $this->faker->numberBetween(5, 25),
-            'sort_order'   => $this->faker->numberBetween(1, 10),
         ];
     }
 }

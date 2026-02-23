@@ -19,7 +19,6 @@ return new class extends Migration
             $table->foreignUlid('building_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->integer('floors_count')->nullable();
-            $table->integer('sort_order')->default(0);
             $table->timestamps();
         });
     }

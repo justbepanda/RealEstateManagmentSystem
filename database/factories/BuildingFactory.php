@@ -19,8 +19,8 @@ class BuildingFactory extends Factory
     public function definition(): array
     {
         return [
-            'complex_id' => Complex::factory(),
-            'name' => 'Корпус ' . $this->faker->bothify('#?'),
+            'complex_id' => fn() => Complex::factory(),
+            'name' => 'Корпус ' . $this->faker->numberBetween(1, 25) . ' ' . strtoupper($this->faker->lexify('?')),
             'floors_count' => $this->faker->numberBetween(5, 25),
             'build_year' => $this->faker->numberBetween(2024, 2028),
         ];

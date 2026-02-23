@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Orchid\Filters\Filterable;
+use Orchid\Filters\Types\Like;
+use Orchid\Filters\Types\Where;
 use Orchid\Screen\AsSource;
 
 /**
@@ -19,6 +22,7 @@ final class Section extends Model
     use AsSource;
     use HasUlids;
     use HasFactory;
+    use Filterable;
 
     /**
      * @var array<int, string>
@@ -27,8 +31,27 @@ final class Section extends Model
         'building_id',
         'name',
         'floors_count',
-        'sort_order',
     ];
+
+    /**
+     * Orchid.
+     * Поля, по которым разрешена фильтрация и сортировка.
+     */
+    protected array $allowedFilters = [
+        'name' => Like::class,
+        'building_id' => Where::class,
+    ];
+
+    /**
+     * Orchid.
+     * Поля, по которым разрешена сортировка.
+     */
+    protected array $allowedSorts = [
+        'name',
+        'building_id',
+        'floors_count',
+    ];
+
 
     /**
      * Секция принадлежит зданию.

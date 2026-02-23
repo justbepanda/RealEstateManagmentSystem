@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Orchid\Attachment\Attachable;
+use Orchid\Filters\Filterable;
+use Orchid\Filters\Types\Like;
+use Orchid\Filters\Types\Where;
 use Orchid\Screen\AsSource;
 
 /**
@@ -21,6 +24,8 @@ final class Floor extends Model
     use Attachable;
     use HasUlids;
     use HasFactory;
+    use Filterable;
+
 
     /**
      * @var array<int, string>
@@ -28,6 +33,24 @@ final class Floor extends Model
     protected $fillable = [
         'building_id',
         'section_id',
+        'number',
+        'premises_count',
+    ];
+
+    /**
+     * Orchid.
+     * Поля, по которым разрешена фильтрация и сортировка.
+     */
+    protected array $allowedFilters = [
+        'number' => Where::class,
+        'premises_count' => Where::class,
+    ];
+
+    /**
+     * Orchid.
+     * Поля, по которым разрешена сортировка.
+     */
+    protected array $allowedSorts = [
         'number',
         'premises_count',
     ];
@@ -51,7 +74,6 @@ final class Floor extends Model
     {
         return $this->belongsTo(Section::class);
     }
-
 
     /**
      * На этаже находятся помещения.

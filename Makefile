@@ -1,12 +1,13 @@
-.PHONY: setup up down restart shell reseed test
+.PHONY: setup up stop logs restart shell reseed test
 
 DCSERVICE=app
 
 # Установка
 setup: prepare-env build install-deps migrate-f
+	docker compose exec ${DCSERVICE} php artisan storage:link
 	@echo "🚀 Project is ready at http://localhost:8000"
 
-# Подготовка конфига (только если его нет)
+# Подготовка конфига (если его нет)
 prepare-env:
 	@test -f .env || cp .env.example .env
 	@echo ".env file prepared"
@@ -21,16 +22,18 @@ install-deps:
 	docker compose exec ${DCSERVICE} php artisan key:generate
 
 migrate-f:
-	docker compose exec ${DCSERVICE} php artisan config:clear
-	docker compose exec ${DCSERVICE} php artisan migrate:fresh --seed
 	docker compose exec ${DCSERVICE} php artisan optimize:clear
+	docker compose exec ${DCSERVICE} php artisan migrate:fresh --seed
 
 up:
 	docker compose up -d
 	@echo "🚀 Project is ready at http://localhost:8000"
 
-down:
-	docker compose down -v
+stop:
+	docker compose stop
+
+logs:
+	docker compose logs -f
 
 shell:
 	docker compose exec ${DCSERVICE} bash

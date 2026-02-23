@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Orchid\Screens\Building\BuildingEditScreen;
+use App\Orchid\Screens\Building\BuildingListScreen;
+use App\Orchid\Screens\Complex\ComplexEditScreen;
+use App\Orchid\Screens\Complex\ComplexListScreen;
+use App\Orchid\Screens\DashboardScreen;
 use App\Orchid\Screens\Examples\ExampleActionsScreen;
 use App\Orchid\Screens\Examples\ExampleCardsScreen;
 use App\Orchid\Screens\Examples\ExampleChartsScreen;
@@ -11,9 +16,16 @@ use App\Orchid\Screens\Examples\ExampleGridScreen;
 use App\Orchid\Screens\Examples\ExampleLayoutsScreen;
 use App\Orchid\Screens\Examples\ExampleScreen;
 use App\Orchid\Screens\Examples\ExampleTextEditorsScreen;
-use App\Orchid\Screens\PlatformScreen;
+use App\Orchid\Screens\Floor\FloorEditScreen;
+use App\Orchid\Screens\Floor\FloorListScreen;
+use App\Orchid\Screens\Premise\PremiseEditScreen;
+use App\Orchid\Screens\Premise\PremiseListScreen;
+use App\Orchid\Screens\PremiseHistory\PremisePriceHistoryScreen;
+use App\Orchid\Screens\PremiseHistory\PremiseStatusHistoryScreen;
 use App\Orchid\Screens\Role\RoleEditScreen;
 use App\Orchid\Screens\Role\RoleListScreen;
+use App\Orchid\Screens\Section\SectionEditScreen;
+use App\Orchid\Screens\Section\SectionListScreen;
 use App\Orchid\Screens\User\UserEditScreen;
 use App\Orchid\Screens\User\UserListScreen;
 use App\Orchid\Screens\User\UserProfileScreen;
@@ -32,7 +44,7 @@ use Tabuna\Breadcrumbs\Trail;
 */
 
 // Main
-Route::screen('/main', PlatformScreen::class)
+Route::screen('/main', DashboardScreen::class)
     ->name('platform.main');
 
 // Platform > Profile
@@ -84,21 +96,33 @@ Route::screen('roles', RoleListScreen::class)
         ->parent('platform.index')
         ->push(__('Roles'), route('platform.systems.roles')));
 
-// Example...
-Route::screen('example', ExampleScreen::class)
-    ->name('platform.example')
-    ->breadcrumbs(fn (Trail $trail) => $trail
-        ->parent('platform.index')
-        ->push('Example Screen'));
+Route::screen('complexes', ComplexListScreen::class)
+    ->name('platform.complex.list');
+Route::screen('complex/{complex?}', ComplexEditScreen::class)
+    ->name('platform.complex.edit');
 
-Route::screen('/examples/form/fields', ExampleFieldsScreen::class)->name('platform.example.fields');
-Route::screen('/examples/form/advanced', ExampleFieldsAdvancedScreen::class)->name('platform.example.advanced');
-Route::screen('/examples/form/editors', ExampleTextEditorsScreen::class)->name('platform.example.editors');
-Route::screen('/examples/form/actions', ExampleActionsScreen::class)->name('platform.example.actions');
+Route::screen('buildings', BuildingListScreen::class)
+    ->name('platform.building.list');
+Route::screen('building/{building?}', BuildingEditScreen::class)
+    ->name('platform.building.edit');
 
-Route::screen('/examples/layouts', ExampleLayoutsScreen::class)->name('platform.example.layouts');
-Route::screen('/examples/grid', ExampleGridScreen::class)->name('platform.example.grid');
-Route::screen('/examples/charts', ExampleChartsScreen::class)->name('platform.example.charts');
-Route::screen('/examples/cards', ExampleCardsScreen::class)->name('platform.example.cards');
+Route::screen('sections', SectionListScreen::class)
+    ->name('platform.section.list');
+Route::screen('section/{section?}', SectionEditScreen::class)
+    ->name('platform.section.edit');
 
-// Route::screen('idea', Idea::class, 'platform.screens.idea');
+Route::screen('floors', FloorListScreen::class)
+    ->name('platform.floor.list');
+Route::screen('floor/{floor?}', FloorEditScreen::class)
+    ->name('platform.floor.edit');
+
+Route::screen('premises', PremiseListScreen::class)
+    ->name('platform.premise.list');
+Route::screen('premise/{premise?}', PremiseEditScreen::class)
+    ->name('platform.premise.edit');
+
+Route::screen('premises-status-history', PremiseStatusHistoryScreen::class)
+    ->name('platform.premises.status-history');
+
+Route::screen('/premises-price-history', PremisePriceHistoryScreen::class)
+->name('platform.premises.price-history');

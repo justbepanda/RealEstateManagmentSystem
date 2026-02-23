@@ -13,20 +13,30 @@ enum PremiseTypeEnum: string
     case PENTHOUSE = 'penthouse';
     case COMMERCIAL = 'commercial';
 
+    /**
+     * @return array
+     */
+    public static function options(): array
+    {
+        $options = [];
+
+        foreach (self::cases() as $case) {
+            $options[$case->value] = ucfirst($case->value);
+        }
+
+        return $options;
+    }
+
+    /**
+     * @return string
+     */
     public function label(): string
     {
         return match($this) {
-            self::APARTMENT => 'Квартира',
-            self::STUDIO => 'Студия',
-            self::PENTHOUSE => 'Пентхаус',
-            self::COMMERCIAL => 'Коммерческое помещение',
+            self::APARTMENT  => 'Квартира',
+            self::STUDIO     => 'Студия',
+            self::PENTHOUSE  => 'Пентхаус',
+            self::COMMERCIAL => 'Коммерческое',
         };
-    }
-
-    public static function options(): array
-    {
-        return collect(self::cases())->mapWithKeys(fn($case) => [
-            $case->value => $case->label()
-        ])->toArray();
     }
 }

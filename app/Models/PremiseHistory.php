@@ -7,6 +7,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Orchid\Metrics\Chartable;
+use Orchid\Screen\AsSource;
 
 /**
  * История изменений помещений
@@ -14,6 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 final class PremiseHistory extends Model
 {
     use HasUlids;
+    use Chartable;
+    use AsSource;
 
     public $timestamps = false;
 
@@ -26,6 +30,10 @@ final class PremiseHistory extends Model
         'type',
         'old_value',
         'new_value',
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime',
     ];
 
     /**
