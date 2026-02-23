@@ -7,9 +7,11 @@ namespace App\Orchid\Screens;
 use App\Models\Premise;
 use App\Models\PremiseHistory;
 use App\Enums\PremiseStatusEnum;
+use App\Enums\PremiseTypeEnum;
 use App\Orchid\Layouts\Charts\SalesChartLayout;
 use App\Orchid\Layouts\Charts\StatusPieChartLayout;
 use Illuminate\Support\Facades\Cache;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Layout;
 use Orchid\Screen\TD;
@@ -38,7 +40,17 @@ class DashboardScreen extends Screen
                 ->groupBy(fn($item) => $item->created_at->format('M Y'))
                 ->map(fn($group) => $group->count());
 
-            $history = PremiseHistory::with(['premise', 'user'])->latest()->limit(10)->get();
+            // Последние изменения статусов
+            $history = PremiseHistory::with(['premise', 'user'])
+                ->where('type', 'status')
+                ->latest()
+                ->limit(10)
+                ->get();
+
+            // Метрики и данные для круговой диаграммы
+            $metrics = [];
+            $statusPieLabels = [];
+            $statusPieValues = [];
 
             foreach (PremiseStatusEnum::cases() as $status) {
                 $count = (int) $statusStats->get($status->value, 0);
@@ -48,30 +60,32 @@ class DashboardScreen extends Screen
                 $statusPieValues[] = $count;
             }
 
-            return [
-                'metrics' => [
-                    'available'    => $statusStats->get(PremiseStatusEnum::AVAILABLE->value, 0),
-                    'reserved'     => $statusStats->get(PremiseStatusEnum::RESERVED->value, 0),
-                    'sold'         => $statusStats->get(PremiseStatusEnum::SOLD->value, 0),
-                    'not_for_sale' => $statusStats->get(PremiseStatusEnum::NOT_FOR_SALE->value, 0),
-                ],
+            // Топ-10 самых дорогих помещений
+            $topPremises = Premise::with([
+                'floor.section.building.complex',
+                'floor.building.complex',
+            ])
+                ->orderByDesc('price_base')
+                ->limit(10)
+                ->get();
 
-                'statusPie' => [
+            return [
+                'metrics'      => $metrics,
+                'statusPie'    => [
                     [
                         'labels' => $statusPieLabels,
                         'values' => $statusPieValues,
                     ]
                 ],
-
-                'salesChart' => [
+                'salesChart'   => [
                     [
                         'name'   => 'Продажи',
                         'values' => $salesHistory->values()->toArray(),
                         'labels' => $salesHistory->keys()->toArray(),
                     ]
                 ],
-
-                'history' => $history,
+                'history'      => $history,
+                'topPremises'  => $topPremises,
             ];
         });
     }
@@ -95,12 +109,11 @@ class DashboardScreen extends Screen
     public function layout(): iterable
     {
         return [
-            Layout::metrics([
-                'Свободно'      => 'metrics.available',
-                'Забронировано' => 'metrics.reserved',
-                'Продано'       => 'metrics.sold',
-                'Не для продажи' => 'metrics.not_for_sale',
-            ]),
+            Layout::metrics(
+                collect(PremiseStatusEnum::cases())
+                    ->mapWithKeys(fn($status) => [$status->label() => "metrics.{$status->value}"])
+                    ->toArray()
+            ),
 
             Layout::columns([
                 SalesChartLayout::class,
@@ -108,10 +121,57 @@ class DashboardScreen extends Screen
             ]),
 
             Layout::table('history', [
-                TD::make('created_at', 'Дата')->render(fn($h) => $h->created_at->format('d.m.Y H:i')),
-                TD::make('premise_id', 'Объект')->render(fn($h) => "№" . ($h->premise->number ?? 'н/д')),
-                TD::make('change', 'Изменение')->render(fn($h) => "{$h->old_value} → {$h->new_value}"),
+                TD::make('created_at', 'Дата')
+                    ->render(fn(PremiseHistory $h) => $h->created_at->format('d.m.Y H:i')),
+
+                TD::make('premise_id', 'Объект')
+                    ->render(fn(PremiseHistory $h) =>
+                    $h->premise
+                        ? Link::make("№" . $h->premise->number)
+                        ->route('platform.premise.edit', $h->premise->id)
+                        : 'н/д'
+                    ),
+
+                TD::make('change', 'Изменение')
+                    ->render(fn(PremiseHistory $h) =>
+                        $this->getStatusLabel($h->old_value) . ' → ' . $this->getStatusLabel($h->new_value)
+                    ),
             ])->title('Последние изменения статусов'),
+
+            Layout::table('topPremises', [
+                TD::make('number', '№ помещения')
+                    ->render(fn(Premise $p) => $p->complex
+                        ? Link::make($p->number)
+                            ->route('platform.premise.edit', $p->id)
+                        : $p->number
+                    ),
+
+                TD::make('complex', 'ЖК')
+                    ->render(function (Premise $p) {
+                        $complex = $p->floor?->section?->building?->complex
+                            ?? $p->floor?->building?->complex;
+
+                        return $complex?->name ?? '—';
+                    }),
+
+                TD::make('type', 'Тип')
+                    ->render(fn(Premise $p) => PremiseTypeEnum::tryFrom($p->type)?->label() ?? $p->type),
+
+                TD::make('status', 'Статус')
+                    ->render(fn(Premise $p) => PremiseStatusEnum::tryFrom($p->status)?->label() ?? $p->status),
+
+                TD::make('price_base', 'Цена, ₽')
+                    ->align(TD::ALIGN_RIGHT)
+                    ->render(fn(Premise $p) => number_format($p->price_base, 0, '.', ' ')),
+            ])->title('Топ-10 самых дорогих помещений'),
         ];
+    }
+
+    /**
+     * Превращаем техническое значение статуса в читаемый label через Enum
+     */
+    private function getStatusLabel(?string $value): string
+    {
+        return PremiseStatusEnum::tryFrom($value)?->label() ?? ($value ?? '-');
     }
 }
