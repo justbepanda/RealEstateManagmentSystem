@@ -124,7 +124,7 @@ class DashboardScreen extends Screen
                 TD::make('created_at', 'Дата')
                     ->render(fn(PremiseHistory $h) => $h->created_at->format('d.m.Y H:i')),
 
-                TD::make('premise_id', 'Объект')
+                TD::make('premise_id', '№ помещения')
                     ->render(fn(PremiseHistory $h) =>
                     $h->premise
                         ? Link::make("№" . $h->premise->number)
@@ -140,10 +140,9 @@ class DashboardScreen extends Screen
 
             Layout::table('topPremises', [
                 TD::make('number', '№ помещения')
-                    ->render(fn(Premise $p) => $p->complex
-                        ? Link::make($p->number)
-                            ->route('platform.premise.edit', $p->id)
-                        : $p->number
+                    ->render(fn (Premise $p) =>
+                    Link::make("№{$p->number}")
+                        ->route('platform.premise.edit', $p)
                     ),
 
                 TD::make('complex', 'ЖК')
