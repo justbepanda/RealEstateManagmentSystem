@@ -1,4 +1,4 @@
-Real Estate Management System (REMS)
+Real Estate Management System
 ====================================
 
 Веб-приложение для управления объектами недвижимости с админ-панелью на базе **Orchid Platform**.
