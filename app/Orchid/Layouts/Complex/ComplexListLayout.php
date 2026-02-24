@@ -6,9 +6,11 @@ namespace App\Orchid\Layouts\Complex;
 
 use App\Enums\ComplexStatusEnum;
 use App\Models\Complex;
+use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
 use Orchid\Screen\Actions\Link;
+use Str;
 
 /**
  * Описание таблицы списка жилых комплексов.
@@ -42,13 +44,23 @@ final class ComplexListLayout extends Table
 
             TD::make('name', 'Название')
                 ->sort()
-                ->filter(TD::FILTER_TEXT)
+                ->filter(Select::make()->options(
+                    Complex::query()
+                        ->distinct()
+                        ->orderBy('name')
+                        ->pluck('name', 'name')
+                        ->toArray()
+                ))
                 ->render(fn(Complex $complex): Link => Link::make($complex->name)
                     ->route('platform.complex.edit', $complex)
                 ),
 
             TD::make('address', 'Адрес')
                 ->filter(TD::FILTER_TEXT),
+
+            TD::make('description', 'Описание')
+                ->filter(TD::FILTER_TEXT)
+                ->render(fn(Complex $complex) => Str::limit($complex->description, 50, '...')),
 
             TD::make('status', 'Статус')
                 ->filter(
