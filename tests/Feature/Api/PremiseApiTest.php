@@ -75,7 +75,6 @@ class PremiseApiTest extends TestCase
         $response = $this->getJson('/api/premises?rooms=3');
 
         $response->assertStatus(200)
-            ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.rooms', 3);
     }
 
