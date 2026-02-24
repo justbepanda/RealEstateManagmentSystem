@@ -17,13 +17,13 @@ Real Estate Management System
 Установка
 ---------
 
-1.  Клонировать репозиторий:
+ Клонировать репозиторий:
 
 ```Bash
 git clone https://github.com/justbepanda/RealEstateManagmentSystem.git
 ```
 
-1.  Выполнить установку и поднятие окружения через Make:
+Выполнить установку и поднятие окружения через Make:
 
 ```Bash
 make setup
