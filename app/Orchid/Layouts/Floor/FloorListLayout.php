@@ -78,14 +78,16 @@ final class FloorListLayout extends Table
 
             TD::make('number', 'Номер этажа')
                 ->sort()
-                ->filter(TD::FILTER_TEXT)
+                ->filter(Select::make()->options(
+                    Floor::select('number')
+                        ->distinct()
+                        ->orderBy('number')
+                        ->pluck('number', 'number')
+                        ->toArray()
+                ))
                 ->render(fn(Floor $floor): Link => Link::make((string)$floor->number)
                     ->route('platform.floor.edit', $floor)
                 ),
-
-
-
-
 
             TD::make('premises_count', 'Количество помещений')
                 ->sort(),
