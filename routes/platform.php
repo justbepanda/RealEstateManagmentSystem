@@ -7,15 +7,6 @@ use App\Orchid\Screens\Building\BuildingListScreen;
 use App\Orchid\Screens\Complex\ComplexEditScreen;
 use App\Orchid\Screens\Complex\ComplexListScreen;
 use App\Orchid\Screens\DashboardScreen;
-use App\Orchid\Screens\Examples\ExampleActionsScreen;
-use App\Orchid\Screens\Examples\ExampleCardsScreen;
-use App\Orchid\Screens\Examples\ExampleChartsScreen;
-use App\Orchid\Screens\Examples\ExampleFieldsAdvancedScreen;
-use App\Orchid\Screens\Examples\ExampleFieldsScreen;
-use App\Orchid\Screens\Examples\ExampleGridScreen;
-use App\Orchid\Screens\Examples\ExampleLayoutsScreen;
-use App\Orchid\Screens\Examples\ExampleScreen;
-use App\Orchid\Screens\Examples\ExampleTextEditorsScreen;
 use App\Orchid\Screens\Floor\FloorEditScreen;
 use App\Orchid\Screens\Floor\FloorListScreen;
 use App\Orchid\Screens\Premise\PremiseEditScreen;
@@ -124,5 +115,5 @@ Route::screen('premise/{premise?}', PremiseEditScreen::class)
 Route::screen('premises-status-history', PremiseStatusHistoryScreen::class)
     ->name('platform.premises.status-history');
 
-Route::screen('/premises-price-history', PremisePriceHistoryScreen::class)
+Route::screen('premises-price-history', PremisePriceHistoryScreen::class)
 ->name('platform.premises.price-history');

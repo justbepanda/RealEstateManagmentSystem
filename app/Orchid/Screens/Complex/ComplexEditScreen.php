@@ -91,6 +91,7 @@ final class ComplexEditScreen extends Screen
 
     public function save(Request $request): RedirectResponse
     {
+        dump($request->all());
         $validated = $request->validate([
             'complex.name'        => 'required|string|max:255',
             'complex.address'     => 'required|string|max:255',
